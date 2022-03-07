@@ -1,0 +1,31 @@
+server:
+port: 8080
+#servlet:
+#context-path: /bai
+
+
+# thymeleaf
+spring:
+ servlet:
+  multipart:
+   enabled: true
+   max-file-size: 500MB
+   max-request-size: 500MB
+ thymeleaf:
+  cache: false
+  check-template-location: true
+  content-type: text/html
+  encoding: UTF-8
+  mode: HTML5
+  prefix: classpath:/
+  suffix: .html
+
+#文件上传
+filepath: D:/file/
+
+#私服仓库配置
+harbor:
+ login_address: http://mmzwwwdocker.digitalgd.com:31104
+ username: admin
+ password: Harbor
+ project: tsf_100000080

@@ -1,0 +1,290 @@
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <style type="text/css">
+        progress {
+            background-color: #56BE64;
+        }
+        progress::-webkit-progress-bar {
+            background: #ccc;
+        }
+        progress::-webkit-progress-value {
+            background: #56BE64;
+        }
+        percentage{
+            position: fixed;
+            left: 160px;
+        }
+    </style>
+    <script src="/js/jq.js"></script>
+    <script>
+        // 上传文件
+        function upload(){
+
+            $("#msg").text("");
+            var checkFile = $("#uploadFile").val();
+            var msgInfo = "";
+            if(null==checkFile || ""==checkFile){
+                $("#msg").text("文件为空,请选择文件!");
+            }else{
+                var formData = new FormData(document.getElementById("FileuploadForm"));
+                $.ajax({
+                    type: "POST",
+                    enctype:'multipart/form-data',
+                    url: '/up',
+                    data: formData,
+                    cache:false,
+                    processData:false,
+                    contentType:false,
+                    error:function(result){
+                        console.log("error");
+                        console.log(result);
+                        flag = false;
+                        $("#msg").text("访问服务器错误，请重试！");
+                    },
+                    success: function(result){
+                        console.log("success");
+                    },
+                    xhr: function () {
+                        var xhr = $.ajaxSettings.xhr();
+                        if (xhr.upload) {
+                            //处理进度条的事件
+                            xhr.upload.addEventListener("progress", progressHandle, false);
+                            //加载完成的事件
+                            xhr.addEventListener("load", completeHandle, false);
+                            //加载出错的事件
+                            xhr.addEventListener("error", failedHandle, false);
+                            //加载取消的事件
+                            xhr.addEventListener("abort", canceledHandle, false);
+                            //开始显示进度条
+                            showProgress();
+                            return xhr;
+                        }
+                    }
+                }, 'json');
+            }
+        }
+        var start = 0;
+        //显示进度条的函数
+        function showProgress() {
+            start = new Date().getTime();
+            $(".progress-body").css("display", "block");
+        }
+        //隐藏进度条的函数
+        function hideProgress() {
+            $("#uploadFile").val('');
+            $('.progress-body .progress-speed').html("0 M/S, 0/0M");
+            $('.progress-body percentage').html("0%");
+            $('.progress-body .progress-info').html("请选择文件并点击上传文件按钮");
+            //$(".progress-body").css("display", "none");
+        }
+        //进度条更新
+        function progressHandle(e) {
+            $('.progress-body progress').attr({value: e.loaded, max: e.total});
+            var percent = e.loaded / e.total * 100;
+            var time = ((new Date().getTime() - start) / 1000).toFixed(3);
+            if(time == 0){
+                time = 1;
+            }
+            $('.progress-body .progress-speed').html(((e.loaded / 1024) / 1024 / time).toFixed(2) + "M/S, " + ((e.loaded / 1024) / 1024).toFixed(2) + "/" + ((e.total / 1024) / 1024).toFixed(2) + " MB. ");
+            $('.progress-body percentage').html(percent.toFixed(2) + "%");
+            if (percent == 100) {
+                $('.progress-body .progress-info').html("上传完成,后台正在处理...");
+            } else {
+                $('.progress-body .progress-info').html("文件上传中...");
+            }
+        };
+        //上传完成处理函数
+        function completeHandle(e) {
+            $('.progress-body .progress-info').html("上传文件完成。");
+            setTimeout(hideProgress, 2000);
+        };
+        //上传出错处理函数
+        function failedHandle(e) {
+            $('.progress-body .progress-info').html("上传文件出错, 服务不可用或文件过大。");
+        };
+        //上传取消处理函数
+        function canceledHandle(e) {
+            $('.progress-body .progress-info').html("上传文件取消。");
+        };
+        ////////////////////////////////////////////////////////////////////////////////////
+        function bu(){
+
+
+            var testData = new FormData(document.getElementById("testData"));
+            $('.bu_info').html("正在处理中，请稍等...");
+            $.ajax({
+                type: "POST",
+                //enctype:'multipart/form-data',
+                url: '/bu',
+                data: testData,
+                cache:false,
+                processData:false,
+                contentType:false,
+
+                success: function(jdata, status){
+                    console.log("success");
+                    $('.bu_info').html("处理结果:"+jdata);
+                    alert (jdata);
+                },
+                error: function (xhr, status) {
+                    console.log("Status: " + status);
+                    console.log(xhr);
+                    $('.bu_info').html("构建过程中：请求数据失败");
+                    window.alert("请求数据失败");
+                }
+
+            });
+
+        }
+
+        /////////////////////////////////////////////////
+    </script></head>
+<h1>TKE Harbor 镜像推送系统</h1>
+-----------------------以下为上传应用包-------------------------
+<!--<form enctype="multipart/form-data" method="post" action="/upload">
+    <input type="file" name="file"/><br>
+    <!--APP：<input type="text" name="app">
+    请选择前后端类型
+    <input id="male" name="type" type="radio" value="1" th:checked="${type==1}"/>
+    <label for="male">前端</label>
+    <input id="female" name="type" type="radio" value="2" th:checked="${type==2}"/>
+    <label for="female">后端</label><br>
+
+    <tr>
+        <th>App：</th>
+        <td>
+            <select name="app_name" class="b_select" >
+                <option value="">请选择</option>
+                <option th:each="item:${appList}"
+                        th:value="${item.name}" th:text="${item.name}">
+                          <!--th:value="${item.code}" th:text="${item.name}">
+                        th:selected="${app_name==item.name}">
+                </option>
+            </select>
+        </td>
+    </tr>
+
+   <br>
+
+    <input type="submit" value="上传"/>
+</form>-->
+
+<form id="FileuploadForm" method="POST" action="/upload" enctype="multipart/form-data">
+    <tr>
+        <th>App：</th>
+        <td>
+            <select name="app_name" class="b_select" >
+                <option value="">请选择</option>
+                <option value="sso-resource">sso-resource</option>
+                <option value="sso-moblie">sso-moblie</option>
+                <option value="gwc-be">gwc-be</option>
+                <option value="gdysweb">gdysweb</option>
+                <option value="ptp-engine">ptp-engine</option>
+                <option value="ptp-cms">ptp-cms</option>
+                <option value="ptp-uum">ptp-uum</option>
+                <option value="agla-ma">agla-ma</option>
+                <option value="fap-be">fap-be</option>
+                <option value="agla-cwy">agla-cwy</option>
+                <option value="sso-be">sso-be</option>
+                <option value="fbpm-adapter">fbpm-adapter</option>
+                <option value="fbpm-admin">fbpm-admin</option>
+                <option value="fbpm-modeler">fbpm-modeler</option>
+                <option value="fbpm-process">fbpm-process</option>
+                <option value="pqr-be">pqr-be</option>
+                <option value="agla-fe">agla-fe</option>
+                <option value="ptp-vue-fe">ptp-vue-fe</option>
+                <option value="sso-fe">sso-fe</option>
+                <option value="sync-fe">sync-fe</option>
+
+
+
+
+
+
+
+
+
+
+                </option>
+            </select>
+        </td>
+    </tr>
+
+
+    <input id="male" name="type" type="radio" value="1" th:checked="${type==1}"/>
+    <label for="male">前端</label>
+    <input id="female" name="type" type="radio" value="2" th:checked="${type==2}"/>
+    <label for="female">后端</label>
+    <input type="file" name="uploadFile" id="uploadFile"/><br />
+    <br /> <input type="button" value="上传文件" onclick="upload()" />
+    <div id="msg"></div><br>
+</form>
+<!--进度条部分(默认隐藏)-->
+<div style="display: none;" class="progress-body">
+    <div>
+        <span style="width: 100px; display: inline-block; text-align: right">上传进度：</span>
+        <progress></progress><percentage>0%</percentage>
+    </div>
+    <div>
+        <span style="width: 100px; display: inline-block; text-align: right">上传速度：</span>
+        <span style="margin-bottom: 10px; margin-left: 30px; width: 300px;" class="progress-speed">0 M/S, 0/0M</span>
+    </div>
+    <div>
+        <span style="width: 100px; display: inline-block; text-align: right">上传状态：</span>
+        <span style="margin-bottom: 10px; margin-left: 30px; width: 300px;" class="progress-info">请选择文件并点击上传文件按钮</span>
+    </div>
+</div>
+
+
+--------以下为构建应用镜像并推送至TKE harbor仓库--------------
+<form id="testData" method="post" action="/bu">
+    <tr>
+        <th>App：</th>
+        <td>
+            <select name="app_name" class="b_select" >
+                <option value="">请选择</option>
+                <option value="sso-resource">sso-resource</option>
+                <option value="sso-moblie">sso-moblie</option>
+                <option value="gwc-be">gwc-be</option>
+                <option value="gdysweb">gdysweb</option>
+                <option value="ptp-engine">ptp-engine</option>
+                <option value="ptp-cms">ptp-cms</option>
+                <option value="ptp-uum">ptp-uum</option>
+                <option value="agla-ma">agla-ma</option>
+                <option value="fap-be">fap-be</option>
+                <option value="agla-cwy">agla-cwy</option>
+                <option value="sso-be">sso-be</option>
+                <option value="fbpm-adapter">fbpm-adapter</option>
+                <option value="fbpm-admin">fbpm-admin</option>
+                <option value="fbpm-modeler">fbpm-modeler</option>
+                <option value="fbpm-process">fbpm-process</option>
+                <option value="pqr-be">pqr-be</option>
+                <option value="agla-fe">agla-fe</option>
+                <option value="ptp-vue-fe">ptp-vue-fe</option>
+                <option value="sso-fe">sso-fe</option>
+                <option value="sync-fe">sync-fe</option>
+                </option>
+            </select>
+        </td>
+    </tr>
+
+
+    <br/><br>
+    Image：<input type="text" name="image"><div style="color:#FF0000">此项如果不填则默认为app名称</div>
+    <br/>
+
+    tag：<input type="text" name="tag">
+    <br/>
+
+    <input type="button" value="build" onclick="bu()" />
+</form>
+-------------------------------------------------------------------<br>
+
+
+
+
+
+<!--<div id ="bu_info">[[${buid_info}]]</div><br>-->
+<div style="color:#FF0000" class ="bu_info"></div><br>
+<br>
+</html>
