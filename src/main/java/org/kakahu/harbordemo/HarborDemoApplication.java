@@ -7,7 +7,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class HarborDemoApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(HarborDemoApplication.class, args);
+
+	    System.out.println("tail -f "+""+System.getProperty("user.dir")+"/*.log");
+	    SpringApplication.run(HarborDemoApplication.class, args);
 	}
 
 }

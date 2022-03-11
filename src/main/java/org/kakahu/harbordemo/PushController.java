@@ -79,7 +79,7 @@ public class PushController {
             if("error".equals(RES_INFO)){
                 sss="构建并推送镜像失败";
             }else{
-                sss="构建并推送镜像成功！推送的版本号为："+app_name+":"+RES_INFO;
+                sss="构建并推送镜像成功！推送的版本号为："+image+":"+RES_INFO;
             }
             //sss="构建测试消息;";
         }catch (Exception e){

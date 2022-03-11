@@ -1,10 +1,6 @@
 server:
-port: 8080
-#servlet:
-#context-path: /bai
+  port: 8080
 
-
-# thymeleaf
 spring:
  servlet:
   multipart:
@@ -20,10 +16,11 @@ spring:
   prefix: classpath:/
   suffix: .html
 
-#文件上传
-filepath: D:/file/
 
-#私服仓库配置
+filepath: D:/file/
+wslog_commond: tail -f /root/tke.log
+
+
 harbor:
  login_address: http://mmzwwwdocker.digitalgd.com:31104
  username: admin

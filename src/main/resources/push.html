@@ -108,7 +108,28 @@
         };
         ////////////////////////////////////////////////////////////////////////////////////
         function bu(){
+           $('.content').html("");
+            //$('.bu_info').html("正在处理中，请稍等...");
+            $("#greetings").html("");
+            let ws = new WebSocket("ws://nexus.cc/log");
 
+            /*ws.onopen = function() {
+                ws.send("Hello WebSockets!");
+            };*/
+
+            ws.onmessage = function(evt) {
+                //let content = document.getElementsByClassName('content')[0];
+                //content.innerText = content.innerText + evt.data.replace(/ /g, '\xa0\xa0');
+                //////////////////////////
+                $("#greetings").append("<tr><td style='background: #333; color: #aaa;float: left;border: none'>" + evt.data +"</td></tr>");
+
+// 滚动条滚动到最低部
+
+                $("#log-container").scrollTop($("#log-container div").height() -$("#log-container").height());
+
+
+                /////////////////////////
+            };
 
             var testData = new FormData(document.getElementById("testData"));
             $('.bu_info').html("正在处理中，请稍等...");
@@ -124,10 +145,12 @@
                 success: function(jdata, status){
                     console.log("success");
                     $('.bu_info').html("处理结果:"+jdata);
+                    ws.close();
                     alert (jdata);
                 },
                 error: function (xhr, status) {
                     console.log("Status: " + status);
+                    ws.close();
                     console.log(xhr);
                     $('.bu_info').html("构建过程中：请求数据失败");
                     window.alert("请求数据失败");
@@ -287,4 +310,25 @@
 <!--<div id ="bu_info">[[${buid_info}]]</div><br>-->
 <div style="color:#FF0000" class ="bu_info"></div><br>
 <br>
+------------------------------------------------------------------------------------
+
+<div class="conWrap">
+
+    <div id="log-container" style="height:800px;overflow-y:scroll;background:#333;color:#aaa;padding:10px;">
+
+        <div>
+
+            <table id="conversation" class="table table-striped">
+
+                <tbody id="greetings"></tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+
 </html>
